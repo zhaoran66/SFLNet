@@ -1,0 +1,99 @@
+# Exo2Ego Configuration (Optimized for GPU Memory)
+# "Put Myself in Your Shoes: Lifting the Egocentric Perspective from Exocentric Videos"
+# ECCV 2024
+
+name: Exo2Ego_SOTA_Experiment
+
+# Dataset configuration
+dataset:
+  name: dexycb  # synthetic, h2o, assembly101, dexycb
+  root: /data/data3/kuanghaohong/datasets/DexYCB
+  seq_len: 8  # Reduced from 16 to save memory
+  image_size: [128, 128]  # Reduced from 256 to save memory
+  num_joints: 21  # hand keypoints
+  use_augmentation: false  # Disable augmentation to save memory
+  exo_views: [0]  # exocentric camera views
+  ego_views: [5, 6, 7]  # egocentric camera views
+
+# Model configuration
+model:
+  # Stage 1: Layout Transformer
+  layout_transformer_type: simplified  # 'full' or 'simplified'
+  hidden_dim: 128  # Reduced from 256 to save memory
+  num_layers: 2  # Reduced from 4 to save memory
+  num_heads: 4  # Reduced from 8 to save memory
+  dropout: 0.1
+  patch_size: 16
+  heatmap_size: 32  # Reduced from 64
+
+  # Stage 2: Diffusion Model
+  diffusion_model_type: simplified  # 'full' or 'simplified'
+  diffusion_base_channels: 32  # Reduced from 64
+  latent_dim: 4
+  num_timesteps: 50  # Reduced from 100
+
+  # VAE configuration (for full model)
+  vae:
+    in_channels: 3
+    latent_dim: 4
+    base_channels: 32  # Reduced from 64
+
+  # UNet configuration (for full model)
+  unet:
+    in_channels: 8  # noise(4) + condition(4)
+    out_channels: 4
+    base_channels: 64  # Reduced from 128
+    channel_mults: [1, 2, 4, 8]
+    num_res_blocks: 2
+    time_dim: 128  # Reduced from 256
+    attention_resolutions: [16]
+    num_heads: 4  # Reduced from 8
+
+  # Diffusion configuration
+  diffusion:
+    num_timesteps: 500  # Reduced from 1000
+    beta_schedule: 'linear'
+    beta_start: 0.0001
+    beta_end: 0.02
+
+# Training configuration
+training:
+  batch_size: 2  # Reduced from 4 to save memory
+  num_epochs: 50
+  lr: 0.0001
+  weight_decay: 0.0001
+  device: cuda
+  log_interval: 10
+  save_interval: 5
+  output_dir: ./outputs/exo2ego
+
+  # Loss weights
+  keypoint_weight: 1.0
+  heatmap_weight: 0.5
+  visibility_weight: 0.2
+
+  # Training strategy
+  train_stage1_first: true
+  max_train_timesteps: 4  # Reduced from 8
+
+# Data loading
+data:
+  num_workers: 0  # Disable multiprocessing to avoid segmentation fault
+  pin_memory: false
+  prefetch_factor: null
+
+# Evaluation
+evaluation:
+  enabled: true
+  eval_interval: 5
+  metrics:
+    - SSIM
+    - PSNR
+    - FID
+    - LPIPS
+
+# Inference
+inference:
+  num_samples: 10
+  save_visualizations: true
+  output_dir: ./outputs/exo2ego/inference

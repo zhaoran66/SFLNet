@@ -1,0 +1,30 @@
+name: Syn2Seq_Keypoint
+dataset:
+  root: /data/data3/kuanghaohong/datasets/DexYCB
+  setup: s0
+  seq_len: 8
+  num_views: 8
+  exo_views: [0]
+  ego_views: [5, 6, 7]
+  num_joints: 21
+  image_size: [128, 128]
+  use_fourier: true
+  fourier_threshold: 0.1
+  use_spatiotemporal: false
+model:
+  hidden_dim: 256
+  num_layers: 6
+  num_heads: 8
+  dropout: 0.1
+  interpolate_steps: 4
+training:
+  batch_size: 2
+  lr: 0.0001
+  weight_decay: 0.0001
+  num_epochs: 50
+  device: cuda
+  log_interval: 10
+  save_interval: 5
+data:
+  num_workers: 4
+  pin_memory: true

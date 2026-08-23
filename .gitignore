@@ -1,0 +1,79 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# PyTorch / deep learning
+*.pth
+*.pt
+*.ckpt
+*.pkl
+*.safetensors
+*.onnx
+
+# Logs and outputs
+logs/
+outputs/
+runs/
+*.log
+
+# Generated visualizations (kept only key figures)
+*.mp4
+*.avi
+*.mov
+*.gif
+*.jpg
+*.jpeg
+*.png
+!test_proj*.jpg
+!test_ego_j2d.jpg
+!test_exo_j2d.jpg
+!pseudo_ego_*.jpg
+
+# Datasets and caches
+data/
+dataset/
+datasets/
+*.zip
+*.tar
+*.tar.gz
+*.h5
+*.hdf5
+.cache/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Embedded repos and logs
+benchmark/KVBench/
+exo/Ego4d/
+compare1/1V
+
+exo/egoexo4d_data/
+
+# Logs and outputs that were missed
+compare1/log_stage2.txt
+exo/Ours/new/log_*.txt
+exo/Ours/new/outputs_*/
+exo/latent/outputs_latent/
+exo/latent/outputs_latent_v2/
+spl/output/
+
+# Files containing AWS credentials (do not upload)
+exo/donwload_fast.py
+exo/download_egoexo4d.py
+exo/download_egoexo4d.sh
+exo/download_fast.py
+exo/test_s3.py

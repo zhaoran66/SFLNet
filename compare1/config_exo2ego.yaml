@@ -1,0 +1,99 @@
+# Exo2Ego Configuration
+# "Put Myself in Your Shoes: Lifting the Egocentric Perspective from Exocentric Videos"
+# ECCV 2024
+
+name: Exo2Ego_SOTA_Experiment
+
+# Dataset configuration
+dataset:
+  name: dexycb  # synthetic, h2o, assembly101, dexycb
+  root: /data/data3/kuanghaohong/datasets/DexYCB
+  seq_len: 16  # sequence length
+  image_size: [256, 256]
+  num_joints: 21  # hand keypoints
+  use_augmentation: true
+  exo_views: [0]  # exocentric camera views
+  ego_views: [5, 6, 7]  # egocentric camera views
+
+# Model configuration
+model:
+  # Stage 1: Layout Transformer
+  layout_transformer_type: simplified  # 'full' or 'simplified'
+  hidden_dim: 256
+  num_layers: 4
+  num_heads: 8
+  dropout: 0.1
+  patch_size: 16
+  heatmap_size: 64
+
+  # Stage 2: Diffusion Model
+  diffusion_model_type: simplified  # 'full' or 'simplified'
+  diffusion_base_channels: 64
+  latent_dim: 4
+  num_timesteps: 100
+
+  # VAE configuration (for full model)
+  vae:
+    in_channels: 3
+    latent_dim: 4
+    base_channels: 64
+
+  # UNet configuration (for full model)
+  unet:
+    in_channels: 7  # noise(4) + condition(3)
+    out_channels: 4
+    base_channels: 128
+    channel_mults: [1, 2, 4, 8]
+    num_res_blocks: 2
+    time_dim: 256
+    attention_resolutions: [16]
+    num_heads: 8
+
+  # Diffusion configuration
+  diffusion:
+    num_timesteps: 1000
+    beta_schedule: 'linear'
+    beta_start: 0.0001
+    beta_end: 0.02
+
+# Training configuration
+training:
+  batch_size: 4
+  num_epochs: 50
+  lr: 0.0001
+  weight_decay: 0.0001
+  device: cuda
+  log_interval: 10
+  save_interval: 5
+  output_dir: ./outputs/exo2ego
+
+  # Loss weights
+  keypoint_weight: 1.0
+  heatmap_weight: 0.5
+  visibility_weight: 0.2
+
+  # Training strategy
+  train_stage1_first: true
+  max_train_timesteps: 8
+
+# Data loading
+data:
+  num_workers: 0
+  pin_memory: true
+  prefetch_factor: ~
+
+# Evaluation
+evaluation:
+  enabled: true
+  eval_interval: 5
+  metrics:
+    - SSIM
+    - PSNR
+    - FID
+    - LPIPS
+
+# Inference
+inference:
+  num_samples: 10
+  save_visualizations: true
+  output_dir: ./outputs/exo2ego/inference
