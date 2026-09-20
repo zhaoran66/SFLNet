@@ -1,168 +1,315 @@
-# SFLNet
+# SFLNet: Temporal Fourier Decomposition and Geodesic Latent Interpolation for Exo-to-Ego 3D Hand Pose Estimation
 
-±¾²Ö¿â°üº¬ÂÛÎÄ **SFLNet** µÄ PyTorch ÊµÏÖ´úÂë£¬ÑĞ¾¿´Ó Exo-centric£¨µÚÈıÈË³Æ£©ÊÓ½Çµ½ Ego-centric£¨µÚÒ»ÈË³Æ£©ÊÓ½ÇµÄÊÖ²¿×ËÌ¬ÓëÍ¼Ïñ×ª»»¡£
+<p align="center">
+  <b>Official PyTorch implementation of SFLNet</b>
+</p>
+
+<p align="center">
+  <a href="https://doi.org/10.1109/LSP.2026.3733358">
+    <img src="https://img.shields.io/badge/IEEE%20SPL-2026-blue.svg" alt="IEEE SPL 2026">
+  </a>
+  <a href="https://doi.org/10.1109/LSP.2026.3733358">
+    <img src="https://img.shields.io/badge/Paper-IEEE%20Xplore-blue.svg" alt="Paper">
+  </a>
+  <a href="https://pytorch.org/">
+    <img src="https://img.shields.io/badge/Framework-PyTorch-orange.svg" alt="PyTorch">
+  </a>
+</p>
+
+## ğŸ“– Introduction
+
+This repository provides the official implementation of:
+
+**SFLNet: Temporal Fourier Decomposition and Geodesic Latent Interpolation for Exo-to-Ego 3D Hand Pose Estimation**
+
+published in **IEEE Signal Processing Letters (SPL), 2026**.
+
+Exo-to-ego 3D hand pose estimation aims to infer the 3D hand pose observed from an egocentric viewpoint using information captured from an exocentric viewpoint. This task is challenging because large viewpoint changes can lead to severe appearance variation, occlusion, and temporal inconsistency.
+
+SFLNet addresses these challenges with two key components:
+
+- **Temporal Fourier Decomposition (TFD)**  
+  Decomposes temporal hand-motion representations in the frequency domain to preserve stable motion patterns while suppressing unstable high-frequency perturbations.
+
+- **Geodesic Latent Interpolation (GLI)**  
+  Performs interpolation along the geodesic path in latent space, enabling smoother and more geometrically meaningful exo-to-ego feature transformation.
+
+By combining temporal frequency modeling with geometry-aware latent interpolation, SFLNet improves the robustness and consistency of cross-view 3D hand pose estimation.
 
 ---
 
-## ²Ö¿â½á¹¹
+## ğŸ”¥ News & Updates
 
-```
-.
-©À©¤©¤ total/              # Ö÷·½·¨£º»ùÓÚ¸µÀïÒ¶·Ö½âÓë¹Ç÷ÀÒıµ¼µÄ Exo¡úEgo Éú³ÉÍøÂç
-©À©¤©¤ total2/             # Ö÷·½·¨¸Ä½ø/±¸·İ°æ±¾
-©À©¤©¤ back/               # Ö÷·½·¨ÔçÆÚ°æ±¾
-©À©¤©¤ spl/                # ĞòÁĞ¶ËµãÔ¤²âÓë»ùÏß¶Ô±È
-©À©¤©¤ compare1/           # Exo2Ego ¶Ô±È·½·¨£¨Á½½×¶Î£ºLayout Transformer + Diffusion£©
-©À©¤©¤ compare2/           # Syn2Seq-Forcing ¶Ô±È·½·¨£¨²åÖµ + ×Ô»Ø¹é£©
-©À©¤©¤ baseline/           # »ùÏßÄ£ĞÍ
-©À©¤©¤ ego_estimator/      # Ego ÊÓ½Ç 3D ÊÖ²¿¹Ø½Úµã¹À¼ÆÆ÷
-©À©¤©¤ exo/                # Exo ÊÓ½ÇÏà¹ØÊµÑéÓëÊı¾İ´¦Àí
-©À©¤©¤ benchmark/          # ÆÀ²âÏà¹Ø´úÂë
-©À©¤©¤ gen_*.py            # ÂÛÎÄÍ¼±í/¿ÉÊÓ»¯Éú³É½Å±¾
-©¸©¤©¤ visualize_*.py      # ½á¹û¿ÉÊÓ»¯½Å±¾
-```
+- **2026-09**: Our paper has been officially published in **IEEE Signal Processing Letters**.
+- **2026-09**: Official SFLNet repository released.
+- More checkpoints, visualization examples, and documentation will be added progressively.
 
 ---
 
-## »·¾³ÒÀÀµ
+## ğŸ§  Method Overview
+
+SFLNet follows a cross-view hand-pose estimation pipeline:
+
+1. Extract temporal hand representations from the exocentric input sequence.
+2. Apply **Temporal Fourier Decomposition** to separate stable motion information from temporal perturbations.
+3. Perform **Geodesic Latent Interpolation** to bridge the exocentric and egocentric latent representations.
+4. Decode the transformed representation into the target egocentric 3D hand pose.
+
+The method is designed to explicitly model both:
+
+- **temporal consistency**, and
+- **cross-view geometric transition**.
+
+### Main Contributions
+
+1. We introduce a **Temporal Fourier Decomposition** strategy for modeling exo-to-ego hand motion in the frequency domain.
+2. We propose **Geodesic Latent Interpolation** to achieve smooth and geometry-aware cross-view feature transformation.
+3. The resulting SFLNet framework provides an effective solution for exo-to-ego 3D hand pose estimation on challenging hand-object interaction datasets.
+
+---
+
+## ğŸ› ï¸ Installation
+
+### 1. Clone the repository
 
 ```bash
-conda create -n sflnet python=3.11
+git clone https://github.com/zhaoran66/SFLNet.git
+cd SFLNet
+```
+
+### 2. Create a conda environment
+
+```bash
+conda create -n sflnet python=3.8
 conda activate sflnet
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
-pip install -r requirements.txt  # Èç´æÔÚ
 ```
 
-Ö÷ÒªÒÀÀµ£º
-- PyTorch >= 2.0
-- torchvision
-- numpy
-- opencv-python
-- PyYAML
-- tqdm
-- scikit-image
-- einops
+### 3. Install PyTorch
 
----
+Please install a PyTorch version compatible with your CUDA environment.
 
-## Êı¾İ×¼±¸
-
-±¾´úÂë»ùÓÚ [DexYCB](https://dex-ycb.github.io/) Êı¾İ¼¯½øĞĞÑµÁ·ÓëÆÀ¹À¡£Çë½«Êı¾İ¼¯°´ÈçÏÂ½á¹¹·ÅÖÃ£º
-
-```
-/data/data5/zhaoran/paper_code/data/
-©¸©¤©¤ dexycb/
-    ©À©¤©¤ 20200709-subject-01/
-    ©À©¤©¤ 20200709-subject-02/
-    ©¸©¤©¤ ...
-```
-
-²¢ÔÚ¸÷ `config_*.yaml` ÖĞĞŞ¸Ä `data_root` Â·¾¶¡£
-
----
-
-## ÑµÁ·
-
-### Ö÷·½·¨£¨total£©
+For example:
 
 ```bash
-cd total
-python train_bone_guided.py --config config_fourier.yaml
+pip install torch torchvision torchaudio
 ```
 
-### ¶Ô±È·½·¨
+### 4. Install dependencies
+
+If a `requirements.txt` file is provided:
 
 ```bash
-# Exo2Ego
-cd ../compare1
-python train_exo2ego.py --config config_exo2ego.yaml
-
-# Syn2Seq-Forcing
-cd ../compare2
-python train_syn2seq.py --config config_syn2seq.yaml
+pip install -r requirements.txt
 ```
+
+Otherwise, please install the dependencies required by the corresponding training and evaluation scripts.
+
+> The experiments in the paper were conducted on an NVIDIA RTX 3090 GPU.
 
 ---
 
-## ÆÀ¹À
+## ğŸ“‚ Dataset Preparation
 
-### Ö÷·½·¨ÆÀ¹À
+SFLNet is evaluated on **DexYCB** and **H2O**.
+
+Please download the datasets from their official sources and follow their corresponding licenses and usage agreements.
+
+### DexYCB
+
+DexYCB is a large-scale hand-object interaction dataset containing synchronized multi-view RGB-D sequences and 3D hand annotations.
+
+Official project page:
+
+https://dex-ycb.github.io/
+
+### H2O
+
+H2O is a dataset for egocentric hand-object interaction understanding with synchronized multi-view observations.
+
+Official project page:
+
+https://github.com/taeinkwon/h2o
+
+### Recommended directory structure
+
+A recommended dataset organization is:
+
+```text
+SFLNet/
+â”œâ”€â”€ data/
+â”‚   â”œâ”€â”€ DexYCB/
+â”‚   â””â”€â”€ H2O/
+â”œâ”€â”€ ...
+â””â”€â”€ README.md
+```
+
+Please update the dataset paths in the corresponding configuration files before training or evaluation.
+
+> Do not use machine-specific absolute paths such as `/data/...` in public configuration files.  
+> We recommend using relative paths or user-defined configuration entries instead.
+
+---
+
+## ğŸš€ Usage
+
+The exact training and evaluation commands depend on the configuration files included in this repository.
+
+Before running an experiment, please make sure that:
+
+1. the dataset path is correctly configured;
+2. the GPU device is correctly specified;
+3. the dataset split matches the setting used in the paper;
+4. the checkpoint path is valid when performing evaluation.
+
+### Training
+
+Run the training entry provided in the repository with the desired configuration.
+
+A typical workflow is:
 
 ```bash
-cd total
-python eval_bone_guided.py --config config_fourier.yaml
-python eval_geodesic_interp.py --config config_fourier.yaml
+python train.py
 ```
 
-### Geometry Baseline
-
-Éó¸åÈËÒªÇóµÄ¸ÕĞÔ±ä»»»ùÏß£º
+or, if the project uses configuration arguments:
 
 ```bash
-cd total
-python eval_geometry_baseline.py --config config_fourier.yaml
+python train.py --config <config_file>
 ```
 
-### ¶Ô±È·½·¨ÆÀ¹À
+### Evaluation
+
+After training, evaluate a saved checkpoint using the evaluation script provided in the repository.
+
+A typical workflow is:
 
 ```bash
-cd ../compare1
-python evaluate_exo2ego.py
-
-cd ../compare2
-python inference_pipeline.py
+python test.py
 ```
 
----
-
-## ¿ÉÊÓ»¯
-
-Éú³ÉÂÛÎÄÍ¼±í£º
+or:
 
 ```bash
-python gen_fig3_final.py
-python gen_pipeline_vis.py
-python visualize_comparison.py
+python test.py --checkpoint <checkpoint_path>
 ```
 
----
-
-## Ô¤ÑµÁ·Ä£ĞÍ
-
-ÓÉÓÚ GitHub ÎÄ¼ş´óĞ¡ÏŞÖÆ£¬Ô¤ÑµÁ·È¨ÖØ£¨`.pth` / `.pt`£©Î´°üº¬ÔÚ±¾²Ö¿âÖĞ¡£Çë½«ÑµÁ·ºÃµÄ checkpoint ·ÅÖÃµ½¶ÔÓ¦Ä¿Â¼£º
-
-- `total/checkpoints/best_latent.pth`
-- `baseline/checkpoints/best_model.pth`
-- `ego_estimator/best_ego_net.pth`
-- `compare2/outputs/syn2seq/best_model.pth`
+> Please refer to the actual scripts and configuration files in this repository for the final command-line arguments.
 
 ---
 
-## Ö÷Òª¶Ô±È·½·¨ËµÃ÷
+## ğŸ“Š Experimental Results
 
-| ·½·¨ | Â·¾¶ | ºËĞÄË¼Ïë |
-|------|------|---------|
-| SFLNet (Ours) | `total/` | ¸µÀïÒ¶·Ö½â + ¹Ç÷ÀÒıµ¼µÄÇ±ÔÚÀ©É¢Ä£ĞÍ |
-| Exo2Ego | `compare1/` | ÏÈÔ¤²â Layout/¹Ø¼üµã£¬ÔÙÓÃ Diffusion Éú³É Ego Í¼Ïñ |
-| Syn2Seq-Forcing | `compare2/` | ²åÖµ + ×Ô»Ø¹éĞòÁĞ½¨Ä£ |
-| Geometry Baseline | `total/eval_geometry_baseline.py` | Exo 3D ×ËÌ¬¾­Ïà»úÍâ²Î¸ÕĞÔ±ä»»µ½ Ego ¿Õ¼ä |
+### DexYCB
+
+SFLNet achieves an **MPJPE of 30.42 mm** on DexYCB under the evaluation protocol used in the paper.
+
+| Method | MPJPE â†“ |
+|---|---:|
+| **SFLNet** | **30.42 mm** |
+
+### Efficiency
+
+The reported inference time of SFLNet is approximately:
+
+| GPU | Inference Time |
+|---|---:|
+| NVIDIA RTX 3090 | **4.49 ms / frame** |
+
+Additional quantitative comparisons and ablation results are available in the paper.
 
 ---
 
-## ±¸×¢
+## âš™ï¸ Important Settings
 
-- ´úÂëÖĞ²¿·Ö¾ø¶ÔÂ·¾¶ÒÑ¸ù¾İ²Ö¿â½á¹¹µ÷Õû£¬Í³Ò»Ö¸Ïò `/data/data5/zhaoran/paper_code/`¡£
-- ÈçĞèÔÚÆäËû»úÆ÷ÉÏÔËĞĞ£¬ÇëĞŞ¸Ä¸÷ `config_*.yaml` ÖĞµÄÊı¾İÂ·¾¶Óë checkpoint Â·¾¶¡£
+The following settings correspond to the experiments reported in the paper:
+
+- Temporal Fourier threshold:  
+  \(\alpha \in [0.05, 0.15]\)
+
+- Geodesic interpolation steps:  
+  \(K = 4\)
+
+- Training sequence length:  
+  **16 frames**
+
+- H2O evaluation setting:  
+  **single-frame input**
+
+These settings may be adjusted depending on the dataset and experimental configuration.
 
 ---
 
-## ÒıÓÃ
+## ğŸ¨ Visualization
+
+We recommend adding qualitative visualization results to an `assets/` directory, for example:
+
+```text
+SFLNet/
+â”œâ”€â”€ assets/
+â”‚   â”œâ”€â”€ framework.png
+â”‚   â”œâ”€â”€ qualitative_results.png
+â”‚   â””â”€â”€ ...
+```
+
+They can then be shown in this README as:
+
+```markdown
+<p align="center">
+  <img src="assets/framework.png" width="900">
+</p>
+```
+
+A framework figure and qualitative exo-to-ego hand-pose visualization can help readers understand the method more quickly.
+
+---
+
+## ğŸ“„ Paper
+
+**SFLNet: Temporal Fourier Decomposition and Geodesic Latent Interpolation for Exo-to-Ego 3D Hand Pose Estimation**
+
+Published in **IEEE Signal Processing Letters, 2026**.
+
+DOI: [10.1109/LSP.2026.3733358](https://doi.org/10.1109/LSP.2026.3733358)
+
+---
+
+## ğŸ–Šï¸ Citation
+
+If you find this repository useful for your research, please cite our paper:
 
 ```bibtex
-@article{sflnet2025,
-  title={SFLNet: Exo-to-Ego Hand Pose and View Synthesis},
-  author={Anonymous},
-  journal={},
-  year={2025}
+@article{zhao2026sflnet,
+  author  = {Ran Zhao and Changlong Jiang and Ran Wang and Xiaofeng Yue and Lijun Zhu and Yang Xiao},
+  title   = {SFLNet: Temporal Fourier Decomposition and Geodesic Latent Interpolation for Exo-to-Ego 3D Hand Pose Estimation},
+  journal = {IEEE Signal Processing Letters},
+  year    = {2026},
+  doi     = {10.1109/LSP.2026.3733358}
 }
 ```
+
+---
+
+## âš ï¸ License
+
+This repository is released for **academic research purposes**.
+
+Please check the repository license file for detailed terms of use.  
+The datasets used in this project are subject to their respective licenses.
+
+---
+
+## ğŸ“¬ Contact
+
+For questions about the code or paper, please open an issue in this repository.
+
+Repository:
+
+https://github.com/zhaoran66/SFLNet
+
+---
+
+## ğŸ™ Acknowledgements
+
+We thank the authors and maintainers of the public datasets and open-source projects used in this work.
+
+If you use code or models derived from other repositories, please also follow their licenses and citation requirements.
